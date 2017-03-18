@@ -45,7 +45,7 @@ percents (HeightMap hm) =
 newImpl : Int -> Float -> Pcg.Seed -> List Float -> List Float
 newImpl remaining displacement seed lst =
   if remaining == 0 then
-    lst
+    normalize lst
   else
     let
       (newLst, newSeed) = intersperse displacement seed lst
@@ -68,4 +68,16 @@ intersperse dis seed lst =
         (rest, finalSeed) = (intersperse (dis / 2) newSeed rst)
       in
         (a::b::c::rest, finalSeed)
+
+normalize : List Float -> List Float
+normalize lst =
+  let
+    min = List.minimum lst |> Maybe.withDefault 0
+    max = List.maximum lst |> Maybe.withDefault 0
+    range = max - min
+  in
+    if range == 0 then
+      lst
+    else
+      List.map (\v -> (v - min) / range) lst
 
