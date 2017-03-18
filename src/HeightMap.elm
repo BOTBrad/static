@@ -1,13 +1,29 @@
 module HeightMap exposing
   ( HeightMap
+  , get
   , new
   , percents
   )
 
+import List.Extra as List
 import Random.Pcg as Pcg
 
 type HeightMap
   = HeightMap (List Float)
+
+get : Float -> HeightMap -> Float
+get ptRaw (HeightMap hm) =
+  let
+    pt = max 0 <| min 1 ptRaw
+    len = List.length hm
+    ptLen = pt * (toFloat len)
+    index = floor ptLen
+    w0 = ptLen - (toFloat index)
+    w1 = 1 - w0
+    left = List.getAt index hm |> Maybe.withDefault 0
+    right = List.getAt (index + 1) hm |> Maybe.withDefault 0
+  in
+    left * w0 + right * w1
 
 
 new : Int -> Pcg.Seed -> HeightMap
@@ -17,6 +33,14 @@ new size seed =
     (lst, seed1) = Pcg.step gen seed
   in
     HeightMap <| newImpl (size // 2) 0.5 seed1 lst
+
+percents : HeightMap -> List Int
+percents (HeightMap hm) =
+  hm
+  |> List.map (\a -> a * 100)
+  |> List.map round
+
+-- new helpers
 
 newImpl : Int -> Float -> Pcg.Seed -> List Float -> List Float
 newImpl remaining displacement seed lst =
@@ -45,8 +69,3 @@ intersperse dis seed lst =
       in
         (a::b::c::rest, finalSeed)
 
-percents : HeightMap -> List Int
-percents (HeightMap hm) =
-  hm
-  |> List.map (\a -> a * 100)
-  |> List.map round

@@ -48,6 +48,7 @@ view model =
     num =
       { key = model.key
       , hm = HeightMap.percents model.hm
+      , at = round <| HeightMap.get 0.125 model.hm * 100
       }
       |> toString
       |> Text.fromString
