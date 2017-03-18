@@ -5,17 +5,38 @@ import Color
 import Element
 import Html
 import Keyboard
+import Random.Pcg as Pcg
 import Text
+
+import HeightMap
 
 main =
   Html.program
-    { init = (0, Cmd.none)
+    { init = init
     , subscriptions = \_ -> Keyboard.downs identity
     , view = view
-    , update = \c model -> (c, Cmd.none)
+    , update = update
     }
 
-type alias Model = Keyboard.KeyCode
+type alias Model = 
+  { key : Keyboard.KeyCode
+  , hm : HeightMap.HeightMap
+  , seed : Pcg.Seed
+  }
+
+init : (Model, Cmd a)
+init =
+  let
+    seed0 = Pcg.initialSeed 12345
+    (seed1, seed) = Pcg.step Pcg.independentSeed seed0
+    hm = HeightMap.new 4 seed1
+  in
+    ( Model
+        0
+        hm
+        seed
+    , Cmd.none
+    )
 
 view : Model -> Html.Html a
 view model =
@@ -25,10 +46,12 @@ view model =
       Collage.rect width height
       |> Collage.filled Color.black
     num =
-      model
+      { key = model.key
+      , hm = HeightMap.percents model.hm
+      }
       |> toString
       |> Text.fromString
-      |> Text.height 48
+      |> Text.height 24
       |> Text.color Color.white
       |> Collage.text
   in
@@ -36,3 +59,12 @@ view model =
       |> Collage.collage width height
       |> Element.toHtml
 
+update : Keyboard.KeyCode -> Model -> (Model, Cmd a)
+update key model =
+  let
+    m =
+      { model
+      | key = key
+      }
+  in
+    (m, Cmd.none)
