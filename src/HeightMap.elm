@@ -18,12 +18,13 @@ get ptRaw (HeightMap hm) =
     len = List.length hm
     ptLen = pt * (toFloat len)
     index = floor ptLen
-    w0 = ptLen - (toFloat index)
-    w1 = 1 - w0
+    wr = ptLen - (toFloat index)
+    wl = 1 - wr
     left = List.getAt index hm |> Maybe.withDefault 0
     right = List.getAt (index + 1) hm |> Maybe.withDefault 0
+    _ = ((index, left), (index + 1, right)) --|> Debug.log ""
   in
-    left * w0 + right * w1
+    (left * wl) + (right * wr)
 
 
 new : Int -> Pcg.Seed -> HeightMap
