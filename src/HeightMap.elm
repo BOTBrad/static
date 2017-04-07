@@ -14,7 +14,7 @@ type HeightMap
 get : Float -> HeightMap -> Float
 get ptRaw (HeightMap hm) =
   let
-    pt = max 0 <| min 1 ptRaw
+    pt = clamp 0 1 ptRaw
     len = List.length hm
     ptLen = pt * (toFloat len)
     index = floor ptLen
